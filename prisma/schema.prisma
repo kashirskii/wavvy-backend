@@ -1,0 +1,53 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  password  String
+  createdAt DateTime  @default(now()) @map("created_at")
+  channels  Channel[]
+  sessions  Session[]
+}
+
+model Session {
+  id           Int      @id @default(autoincrement())
+  userId       Int      @map("user_id")
+  refreshToken String   @map("refresh_token")
+  createdAt    DateTime @default(now()) @map("created_at")
+  expiresAt    DateTime @map("expires_at")
+  user         User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+model Channel {
+  id        Int      @id @default(autoincrement())
+  name      String
+  avatarUrl String?  @map("avatar_url")
+  createdAt DateTime @default(now()) @map("created_at")
+  userId    Int      @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
+  videos    Video[]
+}
+
+model Video {
+  id                Int      @id @default(autoincrement())
+  channelId         Int      @map("channel_id")
+  channel           Channel  @relation(fields: [channelId], references: [id])
+  downloadVideoUrl  String   @map("download_video_url")
+  downloadBannerUrl String   @map("download_banner_url")
+  createdAt         DateTime @default(now()) @map("created_at")
+}
