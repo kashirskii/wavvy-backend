@@ -9,18 +9,8 @@ import argon2 from 'argon2';
 import { UserService } from 'src/user/user.service';
 import { SessionService } from 'src/session/session.service';
 import { LoginDto } from './dtos/login.dto';
-
-interface Tokens {
-  accessToken: string;
-  refreshToken: string;
-}
-
-type JwtPayload = {
-  sub: number;
-  email: string;
-};
-
-type SignedJwtPayload = JwtPayload & { iat: number; exp: number };
+import { JwtPayload, SignedJwtPayload, Tokens } from './types/jwt';
+import { ChannelService } from 'src/channel/channel.service';
 
 @Injectable()
 export class AuthService {
@@ -28,6 +18,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
     private readonly sessionService: SessionService,
+    private readonly channelService: ChannelService,
   ) {}
 
   public async registration(registrationDto: RegistrationDto): Promise<Tokens> {
@@ -38,6 +29,8 @@ export class AuthService {
       email: registrationDto.email,
       password: hashedPassword,
     });
+
+    await this.channelService.createOne(id, email);
 
     const tokens = await this.generateTokens({
       sub: id,

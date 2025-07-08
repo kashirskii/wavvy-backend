@@ -8,6 +8,9 @@ import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { plainToInstance } from 'class-transformer';
+import { SignedJwtPayloadDto } from '../dtos/signed-jwt-payload.dto';
+import { validate } from 'class-validator';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -25,7 +28,7 @@ export class AuthGuard implements CanActivate {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<Request>();
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {
@@ -33,9 +36,18 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
-      await this.jwtService.verifyAsync(token, {
+      const payload = await this.jwtService.verifyAsync(token, {
         secret: process.env.ACCESS_TOKEN_SECRET,
       });
+
+      const dto = plainToInstance(SignedJwtPayloadDto, payload);
+      const errors = await validate(dto);
+
+      if (errors.length > 0) {
+        throw new UnauthorizedException('Invalid JWT payload');
+      }
+
+      request['jwtPayload'] = dto;
     } catch {
       throw new UnauthorizedException('Доступ запрещён');
     }

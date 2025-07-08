@@ -6,9 +6,10 @@ import { UserModule } from 'src/user/user.module';
 import { SessionModule } from 'src/session/session.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './guards/auth.guard';
+import { ChannelModule } from 'src/channel/channel.module';
 
 @Module({
-  imports: [JwtModule, UserModule, SessionModule],
+  imports: [JwtModule, UserModule, SessionModule, ChannelModule],
   controllers: [AuthController],
   providers: [
     AuthService,
