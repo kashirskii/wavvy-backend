@@ -4,11 +4,11 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { RegistrationDto } from './dto/registration.dto';
+import { RegistrationDto } from './dtos/registration.dto';
 import argon2 from 'argon2';
 import { UserService } from 'src/user/user.service';
 import { SessionService } from 'src/session/session.service';
-import { LoginDto } from './dto/login.dto';
+import { LoginDto } from './dtos/login.dto';
 
 interface Tokens {
   accessToken: string;

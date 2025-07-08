@@ -6,9 +6,10 @@ import {
   ApiCookieAuth,
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { RegistrationDto } from './dto/registration.dto';
-import { LoginDto } from './dto/login.dto';
+import { RegistrationDto } from './dtos/registration.dto';
+import { LoginDto } from './dtos/login.dto';
 import { Response, Request } from 'express';
+import { Public } from './decorators/public.decorator';
 
 const REFRESH_TOKEN_MAX_AGE = 30 * 24 * 60 * 60 * 1000;
 
@@ -17,6 +18,7 @@ const REFRESH_TOKEN_MAX_AGE = 30 * 24 * 60 * 60 * 1000;
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Public()
   @Post('/registration')
   @ApiOperation({ summary: 'Регистрация нового пользователя' })
   @ApiResponse({
@@ -39,6 +41,7 @@ export class AuthController {
     return tokens.accessToken;
   }
 
+  @Public()
   @Post('/login')
   @ApiOperation({ summary: 'Вход пользователя' })
   @ApiResponse({
@@ -60,6 +63,7 @@ export class AuthController {
     return tokens.accessToken;
   }
 
+  @Public()
   @Post('/refresh')
   @ApiOperation({ summary: 'Обновление accessToken по refreshToken из cookie' })
   @ApiCookieAuth()
